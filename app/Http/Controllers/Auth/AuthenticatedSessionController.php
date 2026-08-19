@@ -24,15 +24,20 @@ class AuthenticatedSessionController extends Controller
         ]);
     }
 
-    /**
-     * Handle an incoming authentication request.
-     */
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
 
         $request->session()->regenerate();
 
+        // --- Logika Redirect Kustom Berdasarkan Role ---
+        $role = $request->user()->role;
+        
+        if ($role === 'pharmacist') {
+            return redirect()->intended(route('farmasi', absolute: false));
+        }
+
+        // Default untuk admin, doctor, dan nurse
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

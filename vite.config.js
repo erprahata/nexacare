@@ -17,4 +17,9 @@ export default defineConfig({
             },
         }),
     ],
+    // Tambahkan blok server ini untuk mengatasi masalah CORS & IPv6 di Laragon
+    server: {
+        host: '127.0.0.1',
+        cors: true,
+    },
 });
