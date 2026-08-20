@@ -1,6 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
+// Tambahkan 'Link' di sebelah 'Head' pada baris di bawah ini
+import { Head, Link } from '@inertiajs/vue3'; 
 
 defineProps({
     appointments: Array,
@@ -57,10 +58,25 @@ defineProps({
                                         <div class="font-semibold">{{ apt.clinic.name }}</div>
                                         <div class="text-xs text-slate-400">{{ apt.doctor.name }}</div>
                                     </td>
+                                    <!-- KODE BARU YANG DIREVISI -->
                                     <td class="py-4 px-6 text-sm">
-                                        <span class="px-3 py-1 bg-blue-100/80 border border-blue-200 text-blue-700 text-xs font-bold rounded-full capitalize">
-                                            {{ apt.status }}
-                                        </span>
+                                        <!-- Cek apakah status masuk dalam array yang diizinkan untuk diperiksa -->
+                                        <div v-if="['waiting', 'arrived', 'in_progress'].includes(apt.status)">
+                                            <!-- Link menuju form EMR -->
+                                            <Link :href="route('emr.create', apt.id)" 
+                                                class="px-4 py-1.5 bg-indigo-100 hover:bg-indigo-600 text-indigo-700 hover:text-white text-xs font-bold rounded-full transition-colors duration-200 inline-block shadow-sm">
+                                                Periksa Pasien
+                                            </Link>
+                                        </div>
+                                        <div v-else>
+                                            <!-- Dynamic Badge: Hijau untuk Completed, Abu-abu/Merah untuk lainnya -->
+                                            <span class="px-3 py-1 border text-xs font-bold rounded-full capitalize inline-block shadow-sm"
+                                                  :class="apt.status === 'completed' 
+                                                    ? 'bg-emerald-50 text-emerald-600 border-emerald-200' 
+                                                    : 'bg-slate-100 text-slate-500 border-slate-200'">
+                                                {{ apt.status }}
+                                            </span>
+                                        </div>
                                     </td>
                                     <td class="py-4 px-6 text-sm font-mono text-slate-500 text-right">
                                         {{ new Date(apt.estimated_time).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) }} WIB

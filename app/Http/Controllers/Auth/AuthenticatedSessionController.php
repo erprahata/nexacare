@@ -24,21 +24,43 @@ class AuthenticatedSessionController extends Controller
         ]);
     }
 
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request): \Illuminate\Http\RedirectResponse
     {
         $request->authenticate();
 
         $request->session()->regenerate();
 
-        // --- Logika Redirect Kustom Berdasarkan Role ---
-        $role = $request->user()->role;
-        
-        if ($role === 'pharmacist') {
-            return redirect()->intended(route('farmasi', absolute: false));
+        // 1. Ambil data user yang baru saja login
+        $user = $request->user();
+
+        // 2. Tentukan waktu saat ini (Gunakan zona waktu WIB)
+        // Fungsi now() bawaan Laravel sudah menggunakan Carbon
+        $jam = now()->timezone('Asia/Jakarta')->format('H');
+
+        // 3. Logika Sapaan Berdasarkan Jam
+        if ($jam >= 5 && $jam < 11) {
+            $waktu = 'pagi';
+        } elseif ($jam >= 11 && $jam < 15) {
+            $waktu = 'siang';
+        } elseif ($jam >= 15 && $jam < 18) {
+            $waktu = 'sore';
+        } else {
+            $waktu = 'malam';
         }
 
-        // Default untuk admin, doctor, dan nurse
-        return redirect()->intended(route('dashboard', absolute: false));
+        // 4. Susun pesan kustom
+        $pesan = "Halo, selamat {$waktu} {$user->name}. Selamat bertugas!";
+
+        // Cek Role dan Redirect ke Halaman yang Sesuai
+        if ($user->role === 'pharmacist') {
+            return redirect()->intended(route('farmasi', absolute: false))->with('success', $pesan);
+        } elseif ($user->role === 'cashier') {
+            // Tambahkan baris ini untuk role Kasir
+            return redirect()->intended(route('kasir.dashboard', absolute: false))->with('success', $pesan);
+        }
+
+        // Default untuk Admin, Doctor, Nurse
+        return redirect()->intended(route('dashboard', absolute: false))->with('success', $pesan);
     }
 
     /**

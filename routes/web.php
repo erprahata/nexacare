@@ -2,6 +2,10 @@
 
 use App\Models\Appointment;
 use App\Models\Prescription;
+use App\Http\Controllers\PharmacyController;
+use App\Http\Controllers\AdmissionController;
+use App\Http\Controllers\CashierController;
+use App\Http\Controllers\EmrController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -53,6 +57,30 @@ Route::middleware(['auth', 'verified', 'role:admin,pharmacist'])->group(function
         return back()->with('success', 'Resep obat berhasil diproses!');
     })->name('farmasi.proses');
 
+});
+
+// 3. Grup khusus Dokter (Pemeriksaan & EMR)
+Route::middleware(['auth', 'verified', 'role:doctor'])->group(function () {
+    // Menampilkan halaman form EMR
+    Route::get('/emr/{appointment_id}', [EmrController::class, 'create'])->name('emr.create');
+    
+    // Memproses data submit EMR
+    Route::post('/emr/{appointment_id}', [EmrController::class, 'store'])->name('emr.store');
+});
+
+// 4. Grup khusus Kasir / Keuangan
+Route::middleware(['auth', 'verified', 'role:cashier'])->group(function () {
+    // Halaman utama kasir
+    Route::get('/kasir', [CashierController::class, 'index'])->name('kasir.dashboard');
+    
+    // Action memproses pembayaran (sesuai nama route di Vue)
+    Route::put('/kasir/bayar/{id}', [CashierController::class, 'processPayment'])->name('kasir.bayar');
+});
+
+// 5. Modul Frontdesk / Pendaftaran
+Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
+    Route::get('/pendaftaran', [AdmissionController::class, 'create'])->name('pendaftaran.create');
+    Route::post('/pendaftaran', [AdmissionController::class, 'store'])->name('pendaftaran.store');
 });
 
 Route::middleware('auth')->group(function () {

@@ -10,7 +10,14 @@ class Patient extends Model
     use HasUuids; // Aktifkan UUID
 
     protected $fillable = [
-        'medical_record_number', 'name', 'dob', 'gender', 'phone', 'address', 'is_vvip'
+        'medical_record_number', 
+        'name', 
+        'nik', 
+        'dob', 
+        'phone', 
+        'address', 
+        'allergies', // <-- DITAMBAHKAN
+        'is_vvip'
     ];
 
     public function appointments()

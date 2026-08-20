@@ -7,9 +7,10 @@ defineProps({
 });
 
 const prosesResep = (id) => {
-    if (confirm('Apakah Anda yakin obat ini sudah selesai diracik dan diserahkan?')) {
-        router.put(route('farmasi.proses', id));
-    }
+    // Kembalikan ke 'farmasi.proses' agar cocok dengan web.php Anda
+    router.put(route('farmasi.proses', id), {}, {
+        preserveScroll: true,
+    });
 };
 </script>
 

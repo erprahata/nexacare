@@ -108,6 +108,35 @@ class DatabaseSeeder extends Seeder
             'payment_status' => 'unpaid',
         ]);
 
+        // 9. TAMBAHAN: Pasien Baru untuk Uji Coba EMR Dokter
+        $pasienBaru = Patient::create([
+            'medical_record_number' => 'RM-2026-08003',
+            'name' => 'Budi Santoso',
+            'dob' => '1988-12-10',
+            'gender' => 'L',
+            'phone' => '081122334455',
+            'address' => 'Jl. Sudirman No. 45',
+            'is_vvip' => false,
+        ]);
+
+        // Buat antrean baru yang belum diperiksa (status: arrived)
+        Appointment::create([
+            'patient_id' => $pasienBaru->id,
+            'doctor_id' => $dokter->id,
+            'clinic_id' => $poliUmum->id,
+            'estimated_time' => Carbon::now()->addMinutes(20),
+            'priority_level' => 'regular',
+            'status' => 'arrived', // Status ini akan memunculkan tombol "Periksa Pasien"
+        ]);
+
+        // Akun Kasir / Bagian Keuangan
+        \App\Models\User::factory()->create([
+            'name' => 'Nisa Kasir',
+            'email' => 'kasir@nexacare.com',
+            'password' => bcrypt('password123'),
+            'role' => 'cashier', // Pastikan penamaan role ini persis dengan ENUM di migration tabel users Anda
+        ]);
+
         InvoiceItem::create(['invoice_id' => $tagihan->id, 'item_type' => 'consultation_fee', 'description' => 'Jasa Konsultasi dr. Andi Pratama', 'amount' => 175000]);
         InvoiceItem::create(['invoice_id' => $tagihan->id, 'item_type' => 'medicine', 'description' => 'Paracetamol 500mg (10x)', 'amount' => 50000]);
         InvoiceItem::create(['invoice_id' => $tagihan->id, 'item_type' => 'medicine', 'description' => 'Amoxicillin 500mg (15x)', 'amount' => 180000]);
