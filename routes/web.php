@@ -83,6 +83,21 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::post('/pendaftaran', [AdmissionController::class, 'store'])->name('pendaftaran.store');
 });
 
+// 6. Modul Kiosk (Pendaftaran Mandiri / Touchscreen)
+Route::get('/kiosk', function () {
+    // Tarik data poli dan dokter untuk opsi dropdown
+    $clinics = \App\Models\Clinic::all();
+    $doctors = \App\Models\User::where('role', 'doctor')->get();
+    
+    return \Inertia\Inertia::render('Kiosk/SelfRegister', [
+        'clinics' => $clinics,
+        'doctors' => $doctors
+    ]);
+})->name('kiosk.register');
+
+// Memakai AdmissionController store yang sama dengan Frontdesk
+Route::post('/kiosk', [\App\Http\Controllers\AdmissionController::class, 'store'])->name('kiosk.store');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

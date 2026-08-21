@@ -37,15 +37,13 @@ class CashierController extends Controller
 
         $invoice = Invoice::findOrFail($id);
 
-        // Simulasi logika Payment Gateway:
-        // Jika $request->payment_method == 'qris', di sini Anda bisa me-return token Midtrans/Xendit.
-        // Untuk sekarang, kita set langsung lunas sebagai metode Cash/Manual.
-
+        // Update status pembayaran sekaligus merekam metodenya
         $invoice->update([
             'payment_status' => 'paid',
+            'payment_method' => $request->payment_method, // <-- INI YANG KURANG SEBELUMNYA
         ]);
 
-        // Berikan notifikasi sukses (akan otomatis memicu GlassToast)
+        // Berikan notifikasi sukses
         return back()->with('success', 'Pembayaran berhasil diverifikasi dan diselesaikan!');
     }
 }

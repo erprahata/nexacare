@@ -11,7 +11,7 @@ class PharmacyController extends Controller
     // 1. Menampilkan Halaman Dashboard Farmasi
     public function index()
     {
-        // Tarik data resep yang berstatus 'pending', beserta relasi pasien dan detail obatnya
+        // 1. Tarik Antrean Aktif ('pending')
         $prescriptions = Prescription::with([
             'medicalRecord.appointment.patient', 
             'items.medicine'
@@ -20,10 +20,19 @@ class PharmacyController extends Controller
         ->latest()
         ->get();
 
-        // Asumsi nama file Vue Anda ada di folder Pharmacy/Dashboard.vue 
-        // (Sesuaikan jika nama/lokasi file Vue Anda berbeda)
-        return Inertia::render('Pharmacy/Dashboard', [
-            'prescriptions' => $prescriptions
+        // 2. Tarik Riwayat Hari Ini ('completed')
+        $history = Prescription::with([
+            'medicalRecord.appointment.patient', 
+            'items.medicine'
+        ])
+        ->where('status', 'completed')
+        ->whereDate('updated_at', today()) // Hanya riwayat hari ini agar query tidak berat
+        ->latest()
+        ->get();
+
+        return Inertia::render('Farmasi', [ // Pastikan nama komponen sesuai dengan struktur Anda
+            'prescriptions' => $prescriptions,
+            'history' => $history
         ]);
     }
 
